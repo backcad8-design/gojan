@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>질문의 힘: AI와 함께하는 성장 다이어리</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
+        body { font-family: 'Noto Sans KR', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-900 min-h-screen">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Lucide 아이콘 브라우저용 매핑
+        const { BookOpen, Target, RefreshCw, Clipboard, CheckCircle2, ChevronRight, ChevronLeft, ExternalLink, User, Sparkles, Info, Home, LogIn, Edit3, FileText, Save, Copy } = lucide;
+
+        const TRACKS = [
+          {
+            id: 'academic',
+            title: '학술형',
+            icon: 'book-open',
+            description: '데이터로 세상을 읽고 비판적으로 분석하여 사회 문제를 해결할 나만의 대안을 찾습니다.',
+            prompts: [
+              { id: 1, title: '문제 찾기', text: (theme) => `내가 분석하고 싶은 사회 현상은 [${theme}]이야. 이 현상이 얼마나 심각한지 보여주는 통계 자료 3가지를 추천해주고, 각각의 숫자가 우리 사회에 어떤 의미를 주는지 설명해 줘.` },
+              { id: 10, title: '보고서 완성', text: (theme) => `오늘 대화한 내용을 바탕으로 '주제-통계 근거-원인 분석-해결책'이 포함된 탐구 보고서 초안을 작성해 줘.` }
+            ]
+          },
+          {
+            id: 'career',
+            title: '진로형',
+            icon: 'target',
+            description: '관심 있는 전공의 심화 이론을 탐구하고, 고등학교 활동과 대학교 전공을 논리적으로 연결합니다.',
+            prompts: [
+              { id: 1, title: '공부의 연결', text: (major) => `나는 [${major}] 전문가를 꿈꾸고 있어. 고등학교 [교과목명]에서 배운 [핵심 개념]이 대학교 전공 수업에서는 얼마나 더 깊게 쓰이는지 알려줘.` },
+              { id: 10, title: '에세이 완성', text: (major) => `오늘 탐구한 내용을 바탕으로 '전공 탐색 에세이'를 작성해 줘.` }
+            ]
+          }
+        ];
+
+        function App() {
+            const [step, setStep] = React.useState(0);
+            const [selectedTrack, setSelectedTrack] = React.useState(null);
+            const [userName, setUserName] = React.useState('');
+            const [grade, setGrade] = React.useState('');
+            const [studentId, setStudentId] = React.useState('');
+            const [interests, setInterests] = React.useState({});
+
+            const currentInterest = selectedTrack ? (interests[selectedTrack.id] || '') : '';
+
+            return (
+                <div class="flex flex-col min-h-screen">
+                    <header class="h-20 bg-white border-b-2 border-slate-200 flex items-center justify-between px-10">
+                        <span class="font-black text-2xl text-slate-900 underline decoration-indigo-500 decoration-4 underline-offset-4" onClick={() => setStep(0)} class="cursor-pointer">
+                            질문의 힘: AI와 함께하는 성장 다이어리
+                        </span>
+                        <div class="text-right">
+                            <p class="text-xs text-slate-400 font-bold">STUDENT</p>
+                            <p class="text-sm font-black text-slate-800">{userName ? `${userName} (${studentId})` : 'Guest'}</p>
+                        </div>
+                    </header>
+
+                    <main class="flex-1 flex flex-col items-center justify-center p-12 bg-white">
+                        {step === 0 && (
+                            <div class="text-center space-y-8">
+                                <div class="p-6 bg-indigo-600 rounded-[2rem] w-24 h-24 flex items-center justify-center mx-auto shadow-xl text-white">
+                                    <i data-lucide="sparkles" class="w-12 h-12"></i>
+                                </div>
+                                <h1 class="text-5xl font-black">AI와 함께하는 성장 다이어리</h1>
+                                <p class="text-xl text-slate-600">트랙을 선택하고 페르소나를 설정하여 탐구를 시작하세요.</p>
+                                <button onClick={() => setStep(1)} class="px-10 py-5 bg-indigo-600 text-white rounded-xl font-black text-xl hover:bg-indigo-700 transition-all">
+                                    시작하기
+                                </button>
+                            </div>
+                        )}
+
+                        {step === 1 && (
+                            <div class="text-center space-y-6 w-full max-w-md">
+                                <h2 class="text-3xl font-black">학생 정보 입력</h2>
+                                <input type="text" placeholder="이름" value={userName} onChange={e => setUserName(e.target.value)} class="w-full p-4 border-2 rounded-xl text-lg font-bold" />
+                                <input type="text" placeholder="학번 (예: 10101)" value={studentId} onChange={e => setStudentId(e.target.value)} class="w-full p-4 border-2 rounded-xl text-lg font-bold" />
+                                <input type="number" placeholder="학년" value={grade} onChange={e => setGrade(e.target.value)} class="w-full p-4 border-2 rounded-xl text-lg font-bold" />
+                                <textarea placeholder="관심 전공 또는 탐구 주제" value={interests['academic'] || ''} onChange={e => setInterests({academic: e.target.value})} class="w-full p-4 border-2 rounded-xl text-lg font-bold h-32" />
+                                <button onClick={() => alert('정보 등록 완료! 전체 대시보드는 깃허브나 개발 환경(Vite)에서 실행해야 완벽히 작동합니다.')} class="w-full py-4 bg-indigo-600 text-white font-black rounded-xl text-lg">
+                                    등록 완료
+                                </button>
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+        
+        // 아이콘 렌더링 트리거
+        setTimeout(() => lucide.createIcons(), 500);
+    </script>
+</body>
+</html>
